@@ -1,0 +1,25 @@
+{
+    "name": "megaButton",
+    "version": "1.0.0",
+    "description": "Arduino Button Library",
+    "keywords": "arduino, button",
+    "repository":
+    {
+      "type": "git",
+      "url": "https://github.com/yakand/megaButton.git"
+    },
+    "authors":
+    [
+      {
+        "name": "Hossein Mussavi",
+        "email": "shms11@gmail.com",
+        "url": "https://www.linkedin.com/in/seyed-hossein-mousavi-shirazi-0580b97a/"
+      }
+    ],
+    "license": "MIT",
+    "homepage": "https://yakand.com",
+    "dependencies": {
+    },
+    "frameworks": "Arduino",
+    "platforms": "*"
+  }
