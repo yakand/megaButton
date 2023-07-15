@@ -24,7 +24,7 @@ private:
     unsigned long _time_current = 0;
     unsigned long _time_start = 0;
     unsigned long _tick_debounce = 50;
-    unsigned long _tick_long_press = 2000;
+    unsigned long _tick_long_press = 1000;
     unsigned long _tick_timeout = 5000;
     callbackFunction _func_press = NULL;
     callbackFunction _func_long_press = NULL;

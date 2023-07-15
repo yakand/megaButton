@@ -27,20 +27,26 @@ void megaButton::handle()
         {
             _time_start = _time_current;
         }
-        else if ((_state != kTIMEOUT) && ((_time_current - _time_start) > _tick_timeout))
+        else if ((_time_current - _time_start) > _tick_timeout)
         {
+            if (_state == kTIMEOUT)
+                return;
             _state = kTIMEOUT;
             if (_func_timeout)
                 _func_timeout();
         }
-        else if ((_state != kLONGPRESS) && ((_time_current - _time_start) > _tick_long_press))
+        else if ((_time_current - _time_start) > _tick_long_press)
         {
+            if (_state == kLONGPRESS)
+                return;
             _state = kLONGPRESS;
             if (_func_long_press)
                 _func_long_press();
         }
-        else if ((_state != kPRESSED) && ((_time_current - _time_start) > _tick_debounce))
+        else if ((_time_current - _time_start) > _tick_debounce)
         {
+            if (_state == kPRESSED)
+                return;
             _state = kPRESSED;
             if (_func_press)
                 _func_press();
