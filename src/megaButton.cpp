@@ -8,53 +8,59 @@ megaButton::megaButton(int pin, bool enable_pullup, bool active_low)
         pinMode(_pin, INPUT_PULLUP);
     else
         pinMode(_pin, INPUT);
-    _last_value = active_low ? 1 : 0;
+    // _last_value = active_low ? 1 : 0;
 }
 
 void megaButton::handle()
 {
     _read_value = digitalRead(_pin);
-    if (_last_value == _read_value)
-        return;
-    _time_current = millis();
-    _last_value = _read_value;
+    // if (_last_value == _read_value)
+    //     return;
     if (_active_low)
         _read_value = !_read_value;
-    if ((_read_value & 0x01) && (_state == kIDLE))
+    _time_current = millis();
+    // _last_value = _read_value;
+
+    if (_read_value)
     {
-        _state = kPRESSED;
-        _time_start = _time_current;
-        if (_func_press)
-            _func_press();
-    }
-    else if (_time_start > 0)
-    {
-        if (_time_current - _time_start < _tick_debounce)
+        if ((_state == kIDLE) && (_time_start == 0))
         {
-            _state = kRELEASED;
-            if (_func_release)
-                _func_release();
+            _time_start = _time_current;
         }
-        else if (_time_current - _time_start >= _tick_timeout)
+        else if ((_state != kTIMEOUT) && ((_time_current - _time_start) > _tick_timeout))
         {
             _state = kTIMEOUT;
             if (_func_timeout)
                 _func_timeout();
         }
-        else if (_time_current - _time_start >= _tick_long_press)
+        else if ((_state != kLONGPRESS) && ((_time_current - _time_start) > _tick_long_press))
         {
             _state = kLONGPRESS;
             if (_func_long_press)
                 _func_long_press();
         }
-        else if (_time_current - _time_start >= _tick_debounce)
+        else if ((_state != kPRESSED) && ((_time_current - _time_start) > _tick_debounce))
         {
-            _state = kCLICK;
-            if (_func_click)
-                _func_click();
+            _state = kPRESSED;
+            if (_func_press)
+                _func_press();
         }
-        _time_start = 0;
-        _state = kIDLE;
+    }
+    else
+    {
+        if (_time_start > 0)
+        {
+            // _state = kRELEASED;
+            // if(_func_release) _func_release();
+            if (((_time_current - _time_start) > _tick_debounce) && ((_time_current - _time_start) < _tick_long_press))
+            {
+                _state = kCLICK;
+                if (_func_click)
+                    _func_click();
+            }
+            _state = kIDLE;
+            _time_start = 0;
+        }
     }
 }
 void megaButton::attachPress(callbackFunction func)

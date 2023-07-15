@@ -19,7 +19,7 @@ class megaButton
 private:
     int _pin;
     int _read_value;
-    int _last_value;
+    // int _last_value;
     bool _active_low;
     unsigned long _time_current = 0;
     unsigned long _time_start = 0;
