@@ -1,25 +1,29 @@
 #include <megaButton.h>
 
-megaButton::megaButton(int pin, bool enable_pullup, bool active_low)
+megaButton::megaButton(int pin, bool enable_pullup_pulldown, bool active_low)
 {
     _pin = pin;
     _active_low = active_low;
-    if (enable_pullup)
-        pinMode(_pin, INPUT_PULLUP);
+    if (enable_pullup_pulldown)
+    {
+        if (ESP8266 && pin == 16)
+            pinMode(_pin, INPUT_PULLDOWN_16);
+        else
+            pinMode(_pin, INPUT_PULLUP);
+        
+    }
     else
+    {
         pinMode(_pin, INPUT);
-    // _last_value = active_low ? 1 : 0;
+    }
 }
 
 void megaButton::handle()
 {
     _read_value = digitalRead(_pin);
-    // if (_last_value == _read_value)
-    //     return;
     if (_active_low)
         _read_value = !_read_value;
     _time_current = millis();
-    // _last_value = _read_value;
 
     if (_read_value)
     {
@@ -56,8 +60,6 @@ void megaButton::handle()
     {
         if (_time_start > 0)
         {
-            // _state = kRELEASED;
-            // if(_func_release) _func_release();
             if (((_time_current - _time_start) > _tick_debounce) && ((_time_current - _time_start) < _tick_long_press))
             {
                 _state = kCLICK;

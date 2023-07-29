@@ -33,7 +33,7 @@ private:
     callbackFunction _func_timeout = NULL;
     ButtonState _state = kIDLE;
 public:
-    megaButton(int pin, bool enable_pullup, bool active_low);
+    megaButton(int pin, bool enable_pullup_pulldown, bool active_low);
     void handle();
     void attachPress(callbackFunction func);
     void attachLongPress(callbackFunction func);
