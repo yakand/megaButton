@@ -1,16 +1,20 @@
 #include <megaButton.h>
 
-megaButton::megaButton(int pin, bool enable_pullup_pulldown, bool active_low)
+megaButton::megaButton(int pin, bool enable_pullup_pulldown, bool active_low, DigitalFilterType filter)
 {
     _pin = pin;
     _active_low = active_low;
+    _filter = filter;
     if (enable_pullup_pulldown)
     {
-        if (ESP8266 && pin == 16)
+#ifdef ESP8266
+        if (pin == 16)
             pinMode(_pin, INPUT_PULLDOWN_16);
         else
             pinMode(_pin, INPUT_PULLUP);
-        
+#else
+        pinMode(_pin, INPUT_PULLUP);
+#endif
     }
     else
     {
@@ -18,14 +22,68 @@ megaButton::megaButton(int pin, bool enable_pullup_pulldown, bool active_low)
     }
 }
 
+int megaButton::_readSafe()
+{
+    int v = digitalRead(_pin);
+    int l = v;
+    for (uint8_t i = 0; i < _read_safe_count; i++)
+    {
+        v = digitalRead(_pin);
+        if (v != l)
+        {
+            l = -1;
+            break;
+        }
+        l = v;
+    }
+    return l;
+}
+
+int megaButton::_readInput()
+{
+    int ret = -1;
+    if (_filter == kDigitalFilterTypeNone)
+    {
+        ret = digitalRead(_pin);
+    }
+    else if (_filter == kDigitalFilterTypeSimple)
+    {
+        ret = _readSafe();
+    }
+    else if (_filter == kDigitalFilterTypeHard)
+    {
+        unsigned long time = millis();
+        if ((time - _time_filter) >= _try_read_interval_ms)
+        {
+            int v;
+            _time_filter = time;
+            if (_try_read_count == 0)
+                _last_value = _readSafe();
+            v = _readSafe();
+            if (v != _last_value || v == -1)
+            {
+                _try_read_count = 0;
+            }
+            else if (_try_read_count++ == _try_read_number)
+            {
+                _try_read_count = 0;
+                ret = _last_value;
+            }
+        }
+    }
+    return ret;
+}
+
 void megaButton::handle()
 {
-    _read_value = digitalRead(_pin);
+    int v = _readInput();
+    if (v == -1)
+        return;
     if (_active_low)
-        _read_value = !_read_value;
+        v = !v;
     _time_current = millis();
 
-    if (_read_value)
+    if (v)
     {
         if ((_state == kIDLE) && (_time_start == 0))
         {

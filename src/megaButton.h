@@ -2,7 +2,8 @@
 #define MEGABUTTON_H
 #include <Arduino.h>
 
-extern "C"{
+extern "C"
+{
     typedef void (*callbackFunction)(void);
 }
 enum ButtonState
@@ -14,13 +15,26 @@ enum ButtonState
     kCLICK,
     kTIMEOUT
 };
+enum DigitalFilterType
+{
+    kDigitalFilterTypeNone,
+    kDigitalFilterTypeSimple,
+    kDigitalFilterTypeHard,
+};
 class megaButton
 {
 private:
+    int _readInput();
+    int _readSafe();
     int _pin;
-    int _read_value;
-    // int _last_value;
+    int _last_value;
+    uint8_t _read_safe_count = 20;
+    uint8_t _try_read_number = 5;
+    uint8_t _try_read_count = 0;
+    uint8_t _try_read_interval_ms = 10;
     bool _active_low;
+    DigitalFilterType _filter = kDigitalFilterTypeNone;
+    unsigned long _time_filter = 0;
     unsigned long _time_current = 0;
     unsigned long _time_start = 0;
     unsigned long _tick_debounce = 50;
@@ -32,8 +46,9 @@ private:
     callbackFunction _func_release = NULL;
     callbackFunction _func_timeout = NULL;
     ButtonState _state = kIDLE;
+
 public:
-    megaButton(int pin, bool enable_pullup_pulldown, bool active_low);
+    megaButton(int pin, bool enable_pullup_pulldown, bool active_low, DigitalFilterType filter = kDigitalFilterTypeNone);
     void handle();
     void attachPress(callbackFunction func);
     void attachLongPress(callbackFunction func);
@@ -45,6 +60,5 @@ public:
     void setTimeoutTicks(const int ticks);
     ButtonState getState();
 };
-
 
 #endif
