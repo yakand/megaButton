@@ -161,6 +161,18 @@ void megaButton::setTimeoutTicks(const int ticks)
 {
     _tick_timeout = ticks;
 }
+void megaButton::setReadSafeCount (const uint8_t value)
+{
+    _read_safe_count = value;
+}
+void megaButton::setTryReadNumber (const uint8_t value)
+{
+    _try_read_number = value;
+}
+void megaButton::setTryReadIntervalMs (const uint8_t value)
+{
+    _try_read_interval_ms = value;
+}
 ButtonState megaButton::getState()
 {
     return _state;

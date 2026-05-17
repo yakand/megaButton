@@ -58,6 +58,9 @@ public:
     void setDebounceTicks(const int ticks);
     void setLongPressTicks(const int ticks);
     void setTimeoutTicks(const int ticks);
+    void setReadSafeCount(const uint8_t value);
+    void setTryReadNumber(const uint8_t value);
+    void setTryReadIntervalMs(const uint8_t value);
     ButtonState getState();
 };
 
